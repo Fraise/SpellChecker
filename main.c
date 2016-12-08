@@ -3,12 +3,12 @@
 #include <stdint.h>
 #include <unistd.h>
 
-#define NODE_SIZE 33
+#define NODE_SIZE 27
 
 typedef struct TreeNode
 {
-	uint8_t *ptrArray[NODE_SIZE];
-
+	struct TreeNode *ptrArray[NODE_SIZE];
+	int end;
 } treeNode;
 
 void init_treeNode(treeNode *tn)
@@ -25,29 +25,90 @@ int char_to_index(char c)
 		return c - 65;
 	else if ((c >= 97) && (c <= 122))
 		return c - 97;
-	else if (c == 'é')
+	else if (c == '\'')
 		return 26;
-	else if (c == 'è')
-		return 27;
-	else if (c == 'à')
-		return 28;
-	else if (c == 'ù')
-		return 29;
-	else if (c == 'ê')
-		return 30;
-	else if (c == 'ï')
-		return 31;
-	else if (c == ''')
-		return 32;
 	else
 		return -1;
 }
 
+int check_word_ok(char *word)
+{
+	int i = 0;
+	while (word[i] != '\0')
+	{
+		if (char_to_index(word[i]) < 0)
+			return 0;
+			
+		i++;
+	}
+	
+	return 1;
+}
+
+void remove_punctuation(char *word)
+{
+	int i = 0;
+	while (word[i] != '\0')
+	{
+		if (char_to_index(word[i]) < 0)
+			word[i] = '\0';
+			
+		i++;
+	}
+}
+
+void add_word(treeNode *baseNode, char *word)
+{
+	if (*word != '\0')
+	{
+		if ((*baseNode).ptrArray[char_to_index(*word)] == NULL)
+		{
+			(*baseNode).ptrArray[char_to_index(*word)] = calloc(1, sizeof(treeNode));
+			add_word((*baseNode).ptrArray[char_to_index(*word)], word + 1);
+		}
+		else
+		{
+			add_word((*baseNode).ptrArray[char_to_index(*word)], word + 1);
+		}
+	}
+}
+
+int check_word(treeNode *baseNode, char *word)
+{
+	//int word_ok;
+	if (*word != '\0')
+	{
+		//printf("checking letter : %c\n", *word);
+		if ((*baseNode).ptrArray[char_to_index(*word)] != NULL)
+			check_word((*baseNode).ptrArray[char_to_index(*word)], word + 1);
+		else
+			return 0;
+	}
+	else
+		return 1;
+}
+
+void free_tree(treeNode *baseNode)
+{
+	int i;
+	
+	for (i = 0; i < NODE_SIZE; i++)
+	{
+		if ((*baseNode).ptrArray[i] != NULL)
+			free_tree((*baseNode).ptrArray[i]);
+	}
+	
+	free(baseNode);
+}
+
+
 int main(int argc, char *argv[])
 {
 	FILE *dfile, *tfile;
-	treeNode baseNode
+	treeNode *baseNode;
 	char *dictionary = NULL, *text = NULL, word[30], c;
+	
+	baseNode = calloc(1, sizeof(treeNode));
 	
 	while ((c = getopt (argc, argv, "d:")) != -1)
 	{
@@ -80,11 +141,29 @@ int main(int argc, char *argv[])
     text = argv[argc - 1];
     
     dfile = fopen(dictionary, "r");
-    
+
 	while (fscanf(dfile, "%s", word) != EOF)
+		if (check_word_ok(word))
+			add_word(baseNode, word);
+
+	fclose(dfile);
+	
+	tfile = fopen(text, "r");
+	
+	while (fscanf(tfile, "%s", word) != EOF)
 	{
-		printf("%s\n", word);
+		remove_punctuation(word);
+		
+		//printf("word read : %s, check word : %d\n", word, check_word(baseNode, word));
+		
+		if (check_word_ok(word))
+			if (!check_word(baseNode, word))
+				printf("Mistake in word : %s\n", word);
 	}
 	
+	fclose(dfile);
+	
+	free_tree(baseNode);
+
 	return 0;
 }
