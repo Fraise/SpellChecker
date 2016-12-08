@@ -80,7 +80,7 @@ int check_word(treeNode *baseNode, char *word)
 	{
 		//printf("checking letter : %c\n", *word);
 		if ((*baseNode).ptrArray[char_to_index(*word)] != NULL)
-			check_word((*baseNode).ptrArray[char_to_index(*word)], word + 1);
+			return check_word((*baseNode).ptrArray[char_to_index(*word)], word + 1);
 		else
 			return 0;
 	}
@@ -161,7 +161,7 @@ int main(int argc, char *argv[])
 				printf("Mistake in word : %s\n", word);
 	}
 	
-	fclose(dfile);
+	fclose(tfile);
 	
 	free_tree(baseNode);
 
