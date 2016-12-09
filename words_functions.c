@@ -11,6 +11,7 @@ typedef struct TreeNode
 	int 	end;
 } treeNode;
 
+//Converts a char to an index, ignoring caps
 int char_to_index(char c)
 {
 	if ((c >= 65) && (c <= 90))
@@ -23,6 +24,7 @@ int char_to_index(char c)
 		return -1;
 }
 
+//Checks if the word contains any accents. If is does, it is not added to the dictionary
 int check_word_ok(char *word)
 {
 	int i = 0;
@@ -37,6 +39,7 @@ int check_word_ok(char *word)
 	return 1;
 }
 
+//Replaces all puntuation exept ' in read word by \0 to check them without , ; .
 void remove_punctuation(char *word)
 {
 	int i = 0;
@@ -49,6 +52,7 @@ void remove_punctuation(char *word)
 	}
 }
 
+//Adds a word to the tree and sets the end var to 1 for the last letter
 void add_word(treeNode *baseNode, char *word)
 {
 	if (*word != '\0')
@@ -69,6 +73,7 @@ void add_word(treeNode *baseNode, char *word)
 	}
 }
 
+//Checks if a word is in the tree
 int check_word(treeNode *baseNode, char *word)
 {
 	if (*word != '\0')
@@ -84,6 +89,8 @@ int check_word(treeNode *baseNode, char *word)
 		return 0;
 }
 
+
+//Free all callocs used to create the tree
 void free_tree(treeNode *baseNode)
 {
 	int i;

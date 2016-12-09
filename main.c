@@ -15,8 +15,10 @@ int main(int argc, char *argv[])
 	treeNode *baseNode;
 	char *dictionary = NULL, *text = NULL, word[30], punc_word[30], c;
 	
+	//Tha base node is allocated manually as it is freed by the free_tree function
 	baseNode = calloc(1, sizeof(treeNode));
 	
+	//Executable arguments
 	while ((c = getopt (argc, argv, "d:")) != -1)
 	{
 		switch (c)
@@ -39,6 +41,7 @@ int main(int argc, char *argv[])
         return 1;
     }
     
+    //If no dictionary is supplied, we try to get it from /usr/share/dict/words
     if (dictionary == NULL)
     {
     	if (access("/usr/share/dict/words", R_OK) == 0)
@@ -52,9 +55,8 @@ int main(int argc, char *argv[])
     		return 1;
     	}
     }
-    
-    text = argv[argc - 1];
-    
+        
+    //Reading dictionary and creating tree to store it
     dfile = fopen(dictionary, "r");
 
 	while (fscanf(dfile, "%s", word) != EOF)
@@ -63,6 +65,8 @@ int main(int argc, char *argv[])
 
 	fclose(dfile);
 	
+	//Reading text and checking for mistakes
+	text = argv[argc - 1];
 	tfile = fopen(text, "r");
 	
 	while (fscanf(tfile, "%s", word) != EOF)
@@ -78,10 +82,9 @@ int main(int argc, char *argv[])
 				printf("%s ", punc_word);
 		}
 	}
+	printf("\n\n");
 	
 	fclose(tfile);
-	
-	printf("\n\n");
 	
 	free_tree(baseNode);
 

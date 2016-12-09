@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-Wall
+CFLAGS=-Wall -O2
 EXEC=spellchecker
 
 all: $(EXEC)
